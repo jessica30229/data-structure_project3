@@ -6,6 +6,8 @@
 
 using namespace std;
 
+// for main data flow
+
 int main(){
 
     Board board;
@@ -19,10 +21,15 @@ int main(){
     while(1){
 
         //////////// Red Player operations ////////////
+
         algorithm_A(board, red_player, index);
+        // "should" return a board index (i, j).
         board.place_orb(index[0], index[1], &red_player);
+        // put your orb on the index that obtained from your algorithm.
 
         if(rules_violation(red_player)) return 0;
+        // If a players' placement is illegal,
+        // the program will terminate immediately and annouce the winner.
 
         board.print_current_board(index[0], index[1], round);
         round++;
@@ -31,8 +38,11 @@ int main(){
             cout << "Red Player won the game !!!" << endl;
             return 0;
         }
+        // If a players' last placement dominate the hole board,
+        // the program will terminate immediately and annouce the winner.
 
         //////////// Blue Player operations ////////////
+        
         algorithm_B(board, blue_player, index);
         board.place_orb(index[0], index[1], &blue_player);
 

@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// randomMove component
 void algorithm_B(Board board, Player player, int index[]){
     srand(time(NULL)*time(NULL));
     int row, col;
