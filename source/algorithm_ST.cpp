@@ -27,7 +27,16 @@ using namespace std;
  * 4. The function that print out the current board statement
 *************************************************************************/
 
+#define max(a,b) a>b?a:b
+
 int dis_count[2];
+int maxeavl = -1000000;
+int mineval = +1000000;
+enum SPOT_STATE {
+    ME = 0,
+    OPPONENT = 1
+};
+int curplayer = ME;
 struct Point{
     int x, y;
     int value;
@@ -39,16 +48,21 @@ Board new_board(Point p, Player player, Board board){
     Board newboard;
     newboard = board;
     newboard.place_orb(p.x, p.y, &player);
+    return newboard;
 }
 
-int64_t minimax(Board board, int depth, bool isMaximizingPlayer){
+int minimax(Point p, Board board, int depth, int alphha, int beta, bool isMaximizingPlayer){
 // if current board state is a terminal state :
 //     return value of the board
     if(depth == 6)
-        return dis_count[]-dis_count[];
+        // return dis_count[]-dis_count[];
     if(isMaximizingPlayer){
-        
+        curplayer = ME;
+
+    }else{
+        curplayer = OPPONENT;
     }
+    return 0;
 // if isMaximizingPlayer :
 //     bestVal = -INFINITY 
 //     for each move in board
@@ -78,14 +92,19 @@ Point* get_valid_orbs(Board board, Player player){
 }
 
 void algorithm_A(Board board, Player player, int index[]){
-
     //////your algorithm design///////////
-    Point ans;
+    int ansval = -1000000;
+    int ansidx = 0;
     Point* validorbs = get_valid_orbs(board, player);
     for(int i = 0; i < sizeof(validorbs); i++){
-
+        maxeavl = -1000000;
+        mineval = +1000000;
+        int nowval = minimax(validorbs[i] ,board, 0, -100000, 100000, false);
+        ansval = max(ansval, nowval);
+        if(ansval == nowval)
+            ansidx = i;
     }
-    //minmax(board, 0, true);
+    Point ans = validorbs[ansidx]; 
     //if(board.get_cell_color(row, col) == color || board.get_cell_color(row, col) == 'w') break;
     index[0] = ans.x;
     index[1] = ans.y;
