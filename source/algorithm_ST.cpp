@@ -28,9 +28,10 @@ using namespace std;
 *************************************************************************/
 
 #define max(a,b) a>b?a:b
+#define min(a,b) a<b?a:b
 
 int dis_count[2];
-int maxeavl = -1000000;
+int maxeval = -1000000;
 int mineval = +1000000;
 enum SPOT_STATE {
     ME = 0,
@@ -44,38 +45,49 @@ struct Point{
     Point(int x, int y, int value) : x(x), y(y), value(value){}
 };
 
+void change_cnt(Point p, Board board){
+
+}
+
 Board new_board(Point p, Player player, Board board){
     Board newboard;
     newboard = board;
     newboard.place_orb(p.x, p.y, &player);
+    change_cnt(p, newboard);
     return newboard;
 }
 
-int minimax(Point p, Board board, int depth, int alphha, int beta, bool isMaximizingPlayer){
+int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximizingPlayer){
 // if current board state is a terminal state :
 //     return value of the board
     if(depth == 6)
-        // return dis_count[]-dis_count[];
+        return dis_count[ME]-dis_count[OPPONENT];
     if(isMaximizingPlayer){
         curplayer = ME;
-
+        Board newboard = new_board(p, curplayer, board);
+        Point* child = get_valid_orbs(newboard, curplayer);
+        for(int i = 0; i < sizeof(child); i++){
+            int eval = minimax(child[i], newboard, depth+1, alpha, beta, false);
+            maxeval = max(maxeval, eval);
+            alpha = max(alpha, eval);
+            if(beta <= alpha)
+                break;
+        }
+        return maxeval;
     }else{
         curplayer = OPPONENT;
+        Board newboard = new_board(p, curplayer, board);
+        Point* child = get_valid_orbs(newboard, curplayer);
+        for(int i = 0; i < sizeof(child); i++){
+            int eval = minimax(child[i], newboard, depth+1, alpha, beta, true);
+            mineval = min(mineval, eval);
+            beta = min(beta, eval);
+            if(beta <= alpha)
+                break;
+        }
+        return mineval;
     }
     return 0;
-// if isMaximizingPlayer :
-//     bestVal = -INFINITY 
-//     for each move in board
-//             value = minimax(board, depth+1, false)
-//             bestVal = max( bestVal, value) 
-//         return bestVal
-
-//     else :
-//         bestVal = +INFINITY 
-//         for each move in board :
-//             value = minimax(board, depth+1, true)
-//             bestVal = min( bestVal, value) 
-//         return bestVal;
 }
 
 Point* get_valid_orbs(Board board, Player player){
@@ -89,6 +101,7 @@ Point* get_valid_orbs(Board board, Player player){
             }
         }
     }
+    return validorbs;
 }
 
 void algorithm_A(Board board, Player player, int index[]){
@@ -97,9 +110,9 @@ void algorithm_A(Board board, Player player, int index[]){
     int ansidx = 0;
     Point* validorbs = get_valid_orbs(board, player);
     for(int i = 0; i < sizeof(validorbs); i++){
-        maxeavl = -1000000;
+        maxeval = -1000000;
         mineval = +1000000;
-        int nowval = minimax(validorbs[i] ,board, 0, -100000, 100000, false);
+        int nowval = minimax(validorbs[i] ,board, 0, -100000, 100000, true);
         ansval = max(ansval, nowval);
         if(ansval == nowval)
             ansidx = i;

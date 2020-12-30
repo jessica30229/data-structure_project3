@@ -14,3 +14,7 @@
 5 8 8 8 8 5
 
 3 5 5 5 5 3
+
+## Minimax with Alpha Beta Pruning
+
+![image](/images/pruning.png)
