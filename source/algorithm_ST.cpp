@@ -119,7 +119,7 @@ Point* get_valid_orbs(Board board, Player player){
         for(int j = 0; j < 6; j++){
             if(board.get_cell_color(i, j)!= player.get_color()) continue;
             else{
-                validorbs[idx++] = Point(i, j, 0);
+                validorbs[idx++] = Point(i, j);
             }
         }
     }
