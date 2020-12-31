@@ -13,8 +13,7 @@ using namespace std;
  * 1. ~ 4. are listed in next block)
  * 
  * The STL library functions is not allowed to use!!!!
-******************************************************/
-
+******************************************source /Users/jessica/.gvm/scripts/gvm
 /*************************************************************************
  * 1. int board.get_orbs_num(int row_index, int col_index)
  * 2. int board.get_capacity(int row_index, int col_index)
