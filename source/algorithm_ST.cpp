@@ -13,8 +13,7 @@ using namespace std;
  * 1. ~ 4. are listed in next block)
  * 
  * The STL library functions is not allowed to use!!!!
-******************************************************/
-
+******************************************source /Users/jessica/.gvm/scripts/gvm
 /*************************************************************************
  * 1. int board.get_orbs_num(int row_index, int col_index)
  * 2. int board.get_capacity(int row_index, int col_index)
@@ -127,6 +126,23 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
     return 0;
 }
 
+<<<<<<< HEAD
+=======
+Point* get_valid_orbs(Board board, Player player){
+    Point validorbs[30];
+    int idx = 0;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 6; j++){
+            if(board.get_cell_color(i, j)!= player.get_color()) continue;
+            else{
+                validorbs[idx++] = Point(i, j);
+            }
+        }
+    }
+    return validorbs;
+}
+
+>>>>>>> 9a1f388d857047e766e7aecae731227747d532f4
 void algorithm_A(Board board, Player player, int index[]){
     //////your algorithm design///////////
     int ansval = -1000000;
