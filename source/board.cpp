@@ -9,7 +9,9 @@ using namespace std;
     
 #elif __APPLE__
     #define CLEAR "clear"
-    #endif
+#endif
+#define CLEAR "clear"
+
 
 Cell::Cell(){
     orbs_num = 0, capacity = 8, color='w', explode = false;

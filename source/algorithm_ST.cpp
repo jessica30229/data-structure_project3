@@ -74,6 +74,20 @@ Point directions[8] = {
 //     }      
 // }
 
+Point* get_valid_orbs(Board board, Player player){
+    Point* valid_orbs = new Point[30];
+    int idx = 0;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 6; j++){
+            if(board.get_cell_color(i, j)!= player.get_color()) continue;
+            else{
+                valid_orbs[idx++] = Point(i, j);
+            }
+        }
+    }
+    return valid_orbs;
+}
+
 Board new_board(Point p, Player player, Board board){
     Board newboard;
     newboard = board;
@@ -111,20 +125,6 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
         return mineval;
     }
     return 0;
-}
-
-Point* get_valid_orbs(Board board, Player player){
-    Point validorbs[30];
-    int idx = 0;
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 6; j++){
-            if(board.get_cell_color(i, j)!= player.get_color()) continue;
-            else{
-                validorbs[idx++] = Point(i, j, 0);
-            }
-        }
-    }
-    return validorbs;
 }
 
 void algorithm_A(Board board, Player player, int index[]){
