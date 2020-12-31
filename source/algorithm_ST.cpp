@@ -40,26 +40,49 @@ enum SPOT_STATE {
 int curplayer = ME;
 struct Point{
     int x, y;
-    int value;
-    Point() : Point(0, 0, 0) {}
-    Point(int x, int y, int value) : x(x), y(y), value(value){}
+    Point() : Point(0, 0) {}
+    Point(int x, int y) : x(x), y(y) {}
+    Point operator+(const Point& rhs) const {
+		return Point(x + rhs.x, y + rhs.y);
+	}
+	Point operator-(const Point& rhs) const {
+		return Point(x - rhs.x, y - rhs.y);
+	}
 };
 
-void change_cnt(Point p, Board board){
+Point directions[8] = {
+    Point(-1, -1), Point(-1, 0), Point(-1, 1),
+    Point(0, -1), /*{0, 0},*/ Point(0, 1),
+    Point(1, -1), Point(1, 0), Point(1, 1)
+};
 
-}
+// void ST_cell_reset(int i, int j){
+//     cells[i][j].set_orbs_num(0);
+//     cells[i][j].set_explode(false);
+//     cells[i][j].set_color('w');
+// }
+
+// void change_cnt(Point p, Player player, Board board){
+//     if(board.get_orbs_num(p.x, p.y)==board.get_capacity(p.x, p.y)){
+//         for(Point dir: directions){
+//             Point c = c + dir;
+//             if(0 <= c.x && c.x < 5 && 0 <= c.y && c.y < 6){
+//                 board.place_orb(c.x, c.y, &player);
+//             }
+//         }
+//         board.
+//     }      
+// }
 
 Board new_board(Point p, Player player, Board board){
     Board newboard;
     newboard = board;
     newboard.place_orb(p.x, p.y, &player);
-    change_cnt(p, newboard);
+    // change_cnt(p, player, newboard);
     return newboard;
 }
 
 int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximizingPlayer){
-// if current board state is a terminal state :
-//     return value of the board
     if(depth == 6)
         return dis_count[ME]-dis_count[OPPONENT];
     if(isMaximizingPlayer){
@@ -112,7 +135,7 @@ void algorithm_A(Board board, Player player, int index[]){
     for(int i = 0; i < sizeof(validorbs); i++){
         maxeval = -1000000;
         mineval = +1000000;
-        int nowval = minimax(validorbs[i] ,board, 0, -100000, 100000, true);
+        int nowval = minimax(validorbs[i], board, 0, -100000, 100000, true);
         ansval = max(ansval, nowval);
         if(ansval == nowval)
             ansidx = i;
