@@ -2,5 +2,6 @@
     "files.associations": {
         "__tuple": "cpp",
         "array": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
