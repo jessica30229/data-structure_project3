@@ -17,4 +17,4 @@
 
 ## Minimax with Alpha Beta Pruning
 
-![image](/images/pruning.png)
+![image](./images/pruning.png)

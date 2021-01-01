@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//compile command: $g++ chain_reaction.cpp board.cpp rules.cpp player.cpp algorithm_ST.cpp algorithm_TA.cpp
+//compile command: $ g++ chain_reaction.cpp board.cpp rules.cpp player.cpp algorithm_ST.cpp algorithm_TA.cpp
 
 /******************************************************
  * In your algorithm, you can just use the the funcitons
@@ -13,7 +13,8 @@ using namespace std;
  * 1. ~ 4. are listed in next block)
  * 
  * The STL library functions is not allowed to use!!!!
-******************************************source /Users/jessica/.gvm/scripts/gvm
+*****************************************************/
+
 /*************************************************************************
  * 1. int board.get_orbs_num(int row_index, int col_index)
  * 2. int board.get_capacity(int row_index, int col_index)
@@ -73,6 +74,20 @@ Point directions[8] = {
 //     }      
 // }
 
+Point* get_valid_orbs(Board board, Player player){
+    Point* validorbs = new Point[30];
+    int idx = 0;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 6; j++){
+            if(board.get_cell_color(i, j)!= player.get_color()) continue;
+            else{
+                validorbs[idx++] = Point(i, j);
+            }
+        }
+    }
+    return validorbs;
+}
+
 Board new_board(Point p, Player player, Board board){
     Board newboard;
     newboard = board;
@@ -110,20 +125,6 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
         return mineval;
     }
     return 0;
-}
-
-Point* get_valid_orbs(Board board, Player player){
-    Point validorbs[30];
-    int idx = 0;
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 6; j++){
-            if(board.get_cell_color(i, j)!= player.get_color()) continue;
-            else{
-                validorbs[idx++] = Point(i, j);
-            }
-        }
-    }
-    return validorbs;
 }
 
 void algorithm_A(Board board, Player player, int index[]){
