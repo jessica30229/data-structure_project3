@@ -30,7 +30,7 @@ using namespace std;
 #define max(a,b) a>b?a:b
 #define min(a,b) a<b?a:b
 
-int dis_count[2];
+int dis_count[2] = {0};
 int maxeval = -1000000;
 int mineval = +1000000;
 enum SPOT_STATE {
@@ -39,9 +39,10 @@ enum SPOT_STATE {
 };
 int curplayer = ME;
 struct Point{
-    int x, y;
-    Point() : Point(0, 0) {}
+    int x, y, value;
+    Point() : Point(0, 0, 0) {}
     Point(int x, int y) : x(x), y(y) {}
+    Point(int x, int y, int value) : x(x), y(y), value(value){}
     Point operator+(const Point& rhs) const {
 		return Point(x + rhs.x, y + rhs.y);
 	}
@@ -56,14 +57,7 @@ Point directions[8] = {
     Point(1, -1), Point(1, 0), Point(1, 1)
 };
 
-// void ST_cell_reset(int i, int j){
-//     cells[i][j].set_orbs_num(0);
-//     cells[i][j].set_explode(false);
-//     cells[i][j].set_color('w');
-// }
-
-// void change_cnt(Point p, Player player, Board board){
-//     if(board.get_orbs_num(p.x, p.y)==board.get_capacity(p.x, p.y)){
+// if(board.get_orbs_num(p.x, p.y)==board.get_capacity(p.x, p.y)){
 //         for(Point dir: directions){
 //             Point c = c + dir;
 //             if(0 <= c.x && c.x < 5 && 0 <= c.y && c.y < 6){
@@ -71,19 +65,31 @@ Point directions[8] = {
 //             }
 //         }
 //         board.
-//     }      
-// }
+//     }
+
+Point check_weight(Point p, Player player, Board board){
+    int opponent_num = 0;
+    int my_num = 0;
+    int own_num = board.get_capacity(p.x, p.y) - board.get_orbs_num(p.x, p.y);
+    for(Point dir: directions){
+        Point n = p + dir;
+        if(0 <= n.x && n.x < 5 && 0 <= n.y && n.y < 6){
+            if(board.get_cell_color(n.x, n.y) == player.get_color())
+                my_num = my_num + board.get_orbs_num(n.x, n.y);
+            else
+                opponent_num = opponent_num + board.get_orbs_num(n.x, n.y);
+        }
+    }
+    return Point(p.x, p.y, (opponent_num-my_num)-own_num);
+}
 
 Point* get_valid_orbs(Board board, Player player){
     Point* valid_orbs = new Point[30];
     int idx = 0;
     for(int i = 0; i < 5; i++){
         for(int j = 0; j < 6; j++){
-            if(board.get_cell_color(i, j)!= player.get_color()) continue;
-            else{
-
-                valid_orbs[idx++] = Point(i, j);
-            }
+            if(board.get_cell_color(i, j) == player.get_color()||board.get_cell_color(i, j) == 'w')
+                valid_orbs[idx++] = check_weight(Point(i, j), player, board);
         }
     }
     return valid_orbs;
@@ -98,8 +104,8 @@ Board new_board(Point p, Player player, Board board){
 }
 
 int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximizingPlayer){
-    if(depth == 6)
-        return dis_count[ME]-dis_count[OPPONENT];
+    if(depth == 4||board.win_the_game(ME))
+        return p.value;
     if(isMaximizingPlayer){
         curplayer = ME;
         Board newboard = new_board(p, curplayer, board);
@@ -128,26 +134,6 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
     return 0;
 }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-Point* get_valid_orbs(Board board, Player player){
-    Point validorbs[30];
-    int idx = 0;
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 6; j++){
-            if(board.get_cell_color(i, j)!= player.get_color()) continue;
-            else{
-                validorbs[idx++] = Point(i, j);
-            }
-        }
-    }
-    return validorbs;
-}
-
->>>>>>> 9a1f388d857047e766e7aecae731227747d532f4
->>>>>>> 09298f573149cee262b48d46e2dbd4a40418e63b
 void algorithm_A(Board board, Player player, int index[]){
     //////your algorithm design///////////
     int ansval = -1000000;
@@ -156,7 +142,7 @@ void algorithm_A(Board board, Player player, int index[]){
     for(int i = 0; i < sizeof(validorbs); i++){
         maxeval = -1000000;
         mineval = +1000000;
-        int nowval = minimax(validorbs[i], board, 0, -100000, 100000, true);
+        int nowval = minimax(validorbs[i], board, 0, -100000, 100000, false);
         ansval = max(ansval, nowval);
         if(ansval == nowval)
             ansidx = i;
