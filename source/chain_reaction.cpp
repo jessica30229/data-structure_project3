@@ -26,7 +26,10 @@ int main(){
         board.place_orb(index[0], index[1], &red_player);
         // put your orb on the index that obtained from your algorithm.
 
-        if(rules_violation(red_player)) return 0;
+        if(rules_violation(red_player)) {
+            cout << "(" << index[0] << "," << index[1] << ")" << endl;
+            return 0;
+        }
         // If a players' placement is illegal,
         // the program will terminate immediately and annouce the winner.
 
@@ -58,5 +61,7 @@ int main(){
         first_two_step = false;
     }
 
+    algorithm_ST_final();
+    
     return 0;
 } 
