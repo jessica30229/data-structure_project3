@@ -33,14 +33,20 @@ using namespace std;
 int dis_count[2] = {0};
 int maxeval = -1000000;
 int mineval = +1000000;
-enum SPOT_STATE {
-    ME = 0,
-    OPPONENT = 1
-};
-int curplayer = ME;
+// enum SPOT_STATE {
+//     ME = 0,
+//     OPPONENT = 1
+// };
+// int curplayer;
+char my_color;
+char opponet_color;
+Player red_player(RED);
+Player blue_player(BLUE);
+//Player me;
 struct Point{
     int x, y, value;
-    Point() : Point(0, 0, 0) {}
+    //Point() : Point(0, 0, 0) {}
+    Point() {}
     Point(int x, int y) : x(x), y(y) {}
     Point(int x, int y, int value) : x(x), y(y), value(value){}
     Point operator+(const Point& rhs) const {
@@ -57,60 +63,58 @@ Point directions[8] = {
     Point(1, -1), Point(1, 0), Point(1, 1)
 };
 
-// if(board.get_orbs_num(p.x, p.y)==board.get_capacity(p.x, p.y)){
-//         for(Point dir: directions){
-//             Point c = c + dir;
-//             if(0 <= c.x && c.x < 5 && 0 <= c.y && c.y < 6){
-//                 board.place_orb(c.x, c.y, &player);
-//             }
-//         }
-//         board.
-//     }
-
-Point check_weight(Point p, Player player, Board board){
+Point check_weight(Point p, char color, Board board){
     int opponent_num = 0;
     int my_num = 0;
     int own_num = board.get_capacity(p.x, p.y) - board.get_orbs_num(p.x, p.y);
-    for(Point dir: directions){
-        Point n = p + dir;
+    int spark = 0;
+    for(int i = 0; i < 8; i++){
+        Point n = p + directions[i];
         if(0 <= n.x && n.x < 5 && 0 <= n.y && n.y < 6){
-            if(board.get_cell_color(n.x, n.y) == player.get_color())
-                my_num = my_num + board.get_orbs_num(n.x, n.y);
-            else
-                opponent_num = opponent_num + board.get_orbs_num(n.x, n.y);
+            if(board.get_cell_color(n.x, n.y) == color)
+                my_num = my_num + board.get_orbs_num(n.x, n.y); //small is better
+                if(board.get_orbs_num(n.x, n.y)+1 == board.get_capacity(n.x, n.y))
+                    spark++;
+            else{
+                // if(board.get_orbs_num(n.x, n.y)+1 == board.get_capacity(n.x, n.y))
+                //     spark++;
+                opponent_num = opponent_num + board.get_capacity(n.x, n.y) - board.get_orbs_num(n.x, n.y);
+            }
         }
     }
-    return Point(p.x, p.y, (opponent_num-my_num)-own_num);
+    return Point(p.x, p.y, (-opponent_num)-own_num-my_num);
 }
 
-Point* get_valid_orbs(Board board, Player player){
+Point* get_valid_orbs(Board board, char color){
     Point* valid_orbs = new Point[30];
     int idx = 0;
     for(int i = 0; i < 5; i++){
         for(int j = 0; j < 6; j++){
-            if(board.get_cell_color(i, j) == player.get_color()||board.get_cell_color(i, j) == 'w')
-                valid_orbs[idx++] = check_weight(Point(i, j), player, board);
+            if(board.get_cell_color(i, j) == color||board.get_cell_color(i, j) == 'w')
+                valid_orbs[idx++] = check_weight(Point(i, j), color, board);
         }
     }
     return valid_orbs;
 }
 
-Board new_board(Point p, Player player, Board board){
+Board new_board(Point p, char color, Board board){
     Board newboard;
     newboard = board;
+    Player player('w');
+    if(color == 'r') player = red_player;
+    else player = blue_player;
     newboard.place_orb(p.x, p.y, &player);
     // change_cnt(p, player, newboard);
     return newboard;
 }
 
 int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximizingPlayer){
-    if(depth == 4||board.win_the_game(ME))
+    if(depth == 4)//||board.win_the_game(me))
         return p.value;
     if(isMaximizingPlayer){
-        curplayer = ME;
-        Board newboard = new_board(p, curplayer, board);
-        Point* child = get_valid_orbs(newboard, curplayer);
-        for(int i = 0; i < sizeof(child); i++){
+        Board newboard = new_board(p, opponet_color, board);
+        Point* child = get_valid_orbs(newboard, my_color);
+        for(int i = 0; i < sizeof(child)/sizeof(Point*); i++){
             int eval = minimax(child[i], newboard, depth+1, alpha, beta, false);
             maxeval = max(maxeval, eval);
             alpha = max(alpha, eval);
@@ -119,10 +123,9 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
         }
         return maxeval;
     }else{
-        curplayer = OPPONENT;
-        Board newboard = new_board(p, curplayer, board);
-        Point* child = get_valid_orbs(newboard, curplayer);
-        for(int i = 0; i < sizeof(child); i++){
+        Board newboard = new_board(p, my_color, board);
+        Point* child = get_valid_orbs(newboard, opponet_color);
+        for(int i = 0; i < sizeof(child)/sizeof(Point*); i++){
             int eval = minimax(child[i], newboard, depth+1, alpha, beta, true);
             mineval = min(mineval, eval);
             beta = min(beta, eval);
@@ -136,10 +139,14 @@ int minimax(Point p, Board board, int depth, int alpha, int beta, bool isMaximiz
 
 void algorithm_A(Board board, Player player, int index[]){
     //////your algorithm design///////////
+    //me = player;
+    if(player.get_color() == 'r') {my_color = 'r'; opponet_color = 'b';}
+    else {my_color = 'b'; opponet_color = 'r';}
+    // cout << my_color << "\n";
     int ansval = -1000000;
     int ansidx = 0;
-    Point* validorbs = get_valid_orbs(board, player);
-    for(int i = 0; i < sizeof(validorbs); i++){
+    Point* validorbs = get_valid_orbs(board, my_color);
+    for(int i = 0; i < sizeof(validorbs)/sizeof(Point*); i++){
         maxeval = -1000000;
         mineval = +1000000;
         int nowval = minimax(validorbs[i], board, 0, -100000, 100000, false);

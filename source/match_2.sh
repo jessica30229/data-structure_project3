@@ -15,22 +15,31 @@ g++ chain_reaction.cpp board.cpp rules.cpp player.cpp algorithm_ST.cpp algorithm
 export red=0
 export blue=0
 export numofgame=30
+export max=4
 
 for ((i = 0 ; i < $numofgame ; i++)); do
     out=`./a.out > output`
     final=`cat output | grep "Blue Player won"`
     final2=`cat output | grep "Red_Player violated the game rules."`
-    # echo $final
-        if [ "$final2" != "" ]; then
+    #echo $final2
+    if [ "$final2" != "" ]; then
         echo "red player violated"
         exit
     fi
     if [ "$final" == "" ]; then
         echo "red won"
         red=$((red+1))
+        if [ "$red" == "$max" ]; then
+            echo "red win!"
+            exit
+        fi
     else
         echo "blue won"
         blue=$((blue+1))
+        if [ "$blue" == "$max" ]; then
+            echo "blue win!"
+            exit
+        fi
     fi
 done
 
