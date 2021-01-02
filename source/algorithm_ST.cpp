@@ -67,22 +67,22 @@ Point check_weight(Point p, char color, Board board){
     int opponent_num = 0;
     int my_num = 0;
     int own_num = board.get_capacity(p.x, p.y) - board.get_orbs_num(p.x, p.y);
-    int spark = 0;
+    //int spark = 0;
     for(int i = 0; i < 8; i++){
         Point n = p + directions[i];
         if(0 <= n.x && n.x < 5 && 0 <= n.y && n.y < 6){
             if(board.get_cell_color(n.x, n.y) == color)
                 my_num = my_num + board.get_orbs_num(n.x, n.y); //small is better
-                if(board.get_orbs_num(n.x, n.y)+1 == board.get_capacity(n.x, n.y))
-                    spark++;
+                // if(board.get_orbs_num(n.x, n.y)+1 == board.get_capacity(n.x, n.y))
+                //     spark++;
             else{
                 // if(board.get_orbs_num(n.x, n.y)+1 == board.get_capacity(n.x, n.y))
                 //     spark++;
-                opponent_num = opponent_num + board.get_capacity(n.x, n.y) - board.get_orbs_num(n.x, n.y);
+                opponent_num = opponent_num + /*board.get_capacity(n.x, n.y) -*/ board.get_orbs_num(n.x, n.y);
             }
         }
     }
-    return Point(p.x, p.y, (-opponent_num)-own_num-my_num);
+    return Point(p.x, p.y, (opponent_num-my_num)-own_num)/*(-opponent_num)-own_num-my_num)*/;
 }
 
 Point* get_valid_orbs(Board board, char color){
