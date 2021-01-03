@@ -27,12 +27,14 @@ using namespace std;
  * 4. The function that print out the current board statement
 *************************************************************************/
 
-#define max(a,b) a>b?a:b
-#define min(a,b) a<b?a:b
+#define max(a,b) (a)>(b)?(a):(b)
+#define min(a,b) (a)<(b)?(a):(b)
 
-int dis_count[2] = {0};
-int maxeval = -1000000;
-int mineval = +1000000;
+#define MAX_INF     1000000000
+
+// int dis_count[2] = {0};
+// int maxeval = -1000000;
+// int mineval = +1000000;
 //int ans_idx;
 // enum SPOT_STATE {
 //     ME = 0,
@@ -46,127 +48,152 @@ Player blue_player(BLUE);
 
 //Player me;
 struct Point{
-    int x, y, value;
+    int row, col;
     //Point() : Point(0, 0, 0) {}
     Point() {}
-    Point(int x, int y) : x(x), y(y) {}
-    Point(int x, int y, int value) : x(x), y(y), value(value){}
-    Point operator+(const Point& rhs) const {
-		return Point(x + rhs.x, y + rhs.y);
-	}
-	Point operator-(const Point& rhs) const {
-		return Point(x - rhs.x, y - rhs.y);
-	}
+    Point(int row, int col) : row(row), col(col) {}
+
+    // Point operator+(const Point& rhs) const {
+	// 	return Point(x + rhs.x, y + rhs.y);
+	// }
+	// Point operator-(const Point& rhs) const {
+	// 	return Point(x - rhs.x, y - rhs.y);
+	// }
 };
 
-Point directions[8] = {
-    Point(-1, -1), Point(-1, 0), Point(-1, 1),
-    Point(0, -1), /*{0, 0},*/ Point(0, 1),
-    Point(1, -1), Point(1, 0), Point(1, 1)
-};
+// Point directions[8] = {
+//     Point(-1, -1), Point(-1, 0), Point(-1, 1),
+//     Point(0, -1), /*{0, 0},*/ Point(0, 1),
+//     Point(1, -1), Point(1, 0), Point(1, 1)
+// };
 
-static int hit_count=0;
+#if 1
+int check_weight(Board* board){
+    int weight = 0;
+    for(int row=0;row<5;row++) {
+        for(int col=0;col<6;col++) {
+            char c = board->get_cell_color(row,col);
+            int cap = board->get_cell_color(row,col);
+            int num = board->get_orbs_num(row,col);
 
-Point check_weight(Point p, char color, Board* board){
-    hit_count++;
-
-    int opponent_num = 0;
-    int my_num = 0;
-    int own_num = /*board->get_capacity(p.x, p.y) -*/ board->get_orbs_num(p.x, p.y)/board->get_capacity(p.x, p.y);
-    //int spark = 0;
-    for(int i = 0; i < 8; i++){
-        Point n = p + directions[i];
-        if(0 <= n.x && n.x < 5 && 0 <= n.y && n.y < 6){
-            if(board->get_cell_color(n.x, n.y) == color)
-                my_num = my_num + board->get_orbs_num(n.x, n.y)/board->get_capacity(n.x, n.y); //small is better
-                // if(board->get_orbs_num(n.x, n.y)+1 == board->get_capacity(n.x, n.y))
-                //     spark++;
-            else{
-                opponent_num = opponent_num + /* -*/ board->get_orbs_num(n.x, n.y);
+            if(c==RED) {
+                switch(cap-num) {
+                    case 1: weight += 10000; break;
+                    case 2: weight += 1000; break;
+                    default:
+                        weight += 100; break;
+                }
+            } else if(c==BLUE) {
+                switch(cap-num) {
+                    case 1: weight -= 10000; break;
+                    case 2: weight -= 1000; break;
+                    default:
+                        weight -= 100; break;
+                }
             }
         }
     }
-    return Point(p.x, p.y, (opponent_num+my_num)+own_num)/*(-opponent_num)-own_num-my_num)*/;
+    return weight;
 }
 
 Point* get_valid_orbs(Board* board, char color, int* count){
     Point* valid_orbs = new Point[30];
     int idx = 0;
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 6; j++){
-            if(board->get_cell_color(i, j) == color||board->get_cell_color(i, j) == 'w')
-                valid_orbs[idx++] = check_weight(Point(i, j), color, board);
+    for(int row = 0; row < 5; row++){
+        for(int col = 0; col < 6; col++){
+            if(board->get_cell_color(row, col) == color||board->get_cell_color(row,col) == 'w')
+                valid_orbs[idx++] = Point(row,col);
         }
     }
-    // cout << idx << "\n";
     *count = idx;
     return valid_orbs;
 }
 
-Board new_board(Point p, char color, Board* board){
-    Board newboard;
-    newboard = *board;
+void create_new_board(Board* newboard, Point p, char color, Board* board){
+    // copy original
+    *newboard = *board;
+
     Player player('w');
     if(color == 'r') player = red_player;
     else player = blue_player;
-    newboard.place_orb(p.x, p.y, &player);
-    // change_cnt(p, player, newboard);
-    return newboard;
+    newboard->place_orb(p.row, p.col, &player);
 }
 
-int minimax(Point p, Board* board, int depth, int alpha, int beta, bool isMaximizingPlayer){
-    int count;
-    if(depth == 4)//||board.win_the_game(me))
-        return p.value;
-    if(isMaximizingPlayer){
-        Board newboard = new_board(p, opponet_color, board);
-        Point* child = get_valid_orbs(&newboard, my_color, &count);
-        for(int i = 0; i < count; i++){
-            int eval = minimax(child[i], &newboard, depth+1, alpha, beta, false);
-            maxeval = max(maxeval, eval);
-            alpha = max(alpha, eval);
-            if(beta <= alpha)
-                break;
-        }
-        return maxeval;
-    }else{
-        Board newboard = new_board(p, my_color, board);
-        Point* child = get_valid_orbs(&newboard, opponet_color, &count);
-        for(int i = 0; i < count; i++){
-            int eval = minimax(child[i], &newboard, depth+1, alpha, beta, true);
-            mineval = min(mineval, eval);
-            beta = min(beta, eval);
-            if(beta <= alpha)
-                break;
-        }
-        return mineval;
+int minimax(Board* board, int depth, int alpha, int beta, bool isMaximizingPlayer, Point* ret_p){
+    int v, new_v, count;
+
+    if(depth==0) {
+        ret_p = 0;
+        return check_weight(board);
     }
-    return 0;
+
+    if(isMaximizingPlayer) {
+        v = -MAX_INF;
+        Point* valid_orbs = get_valid_orbs(board, my_color, &count);
+        if(count==0) {
+            cout << "max ERROR no valid orbs" << endl;
+        }
+        Point p, which_p;
+        for(int i=0;i<count;i++) {
+            Board nboard;
+            // place new orb
+            create_new_board(&nboard, valid_orbs[i], my_color, board);
+            // find next best orb
+            new_v = minimax(&nboard, depth-1, alpha, beta, false, &which_p);
+
+            if(new_v>=v) {
+                v = new_v;
+                p = valid_orbs[i];
+            }
+            if(alpha>=v) {
+                alpha = v;
+            }
+            if(alpha>=beta)
+                break;
+        }
+        delete valid_orbs;
+        *ret_p=p;
+        return v;
+    } else {
+        v = +MAX_INF;
+        Point* valid_orbs = get_valid_orbs(board, opponet_color, &count);
+        if(count==0) {
+            cout << "min ERROR no valid orbs" << endl;
+        }
+        Point p, which_p;
+        for(int i=0;i<count;i++) {
+            Board nboard;
+            // place new orb
+            create_new_board(&nboard, valid_orbs[i], opponet_color, board);
+            // find next best orb
+            new_v = minimax(&nboard, depth-1, alpha, beta, true, &which_p);
+            if(new_v<=v) {
+                v = new_v;
+                p = valid_orbs[i];
+            }
+            if(beta<=v) {
+                beta = v;
+            }
+            if(beta<=alpha)
+                break;
+        }
+        delete valid_orbs;
+        *ret_p=p;
+        return v;
+    }
 }
 
 void algorithm_A(Board board, Player player, int index[]){
-    int count;
+    // int count;
     //////your algorithm design///////////
     if(player.get_color() == 'r') {my_color = 'r'; opponet_color = 'b';}
     else {my_color = 'b'; opponet_color = 'r';}
-    int ansval = -1000000;
-    int ansidx = 0;
-    Point* validorbs = get_valid_orbs(&board, my_color, &count);
-    for(int i = 0; i < count; i++){
-        maxeval = -1000000;
-        mineval = +1000000;
-        int nowval = minimax(validorbs[i], &board, 0, -100000, 100000, false);
-        ansval = max(ansval, nowval);
-        if(ansval == nowval)
-            ansidx = i;
-    }
-    Point ans = validorbs[ansidx]; 
-    //if(board.get_cell_color(row, col) == color || board.get_cell_color(row, col) == 'w') break;
-    index[0] = ans.x;
-    index[1] = ans.y;
-}
 
-void algorithm_ST_final()
-{
-    cout << hit_count << endl;    
+    Point p;
+    
+    minimax(&board, 4, -MAX_INF, +MAX_INF, true, &p);
+
+    index[0] = p.row;
+    index[1] = p.col;
 }
+#endif
