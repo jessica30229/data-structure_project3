@@ -32,42 +32,17 @@ using namespace std;
 
 #define MAX_INF     1000000000
 
-// int dis_count[2] = {0};
-// int maxeval = -1000000;
-// int mineval = +1000000;
-//int ans_idx;
-// enum SPOT_STATE {
-//     ME = 0,
-//     OPPONENT = 1
-// };
-// int curplayer;
 char my_color;
 char opponet_color;
 Player red_player(RED);
 Player blue_player(BLUE);
 
-//Player me;
 struct Point{
     int row, col;
-    //Point() : Point(0, 0, 0) {}
     Point() {}
     Point(int row, int col) : row(row), col(col) {}
-
-    // Point operator+(const Point& rhs) const {
-	// 	return Point(x + rhs.x, y + rhs.y);
-	// }
-	// Point operator-(const Point& rhs) const {
-	// 	return Point(x - rhs.x, y - rhs.y);
-	// }
 };
 
-// Point directions[8] = {
-//     Point(-1, -1), Point(-1, 0), Point(-1, 1),
-//     Point(0, -1), /*{0, 0},*/ Point(0, 1),
-//     Point(1, -1), Point(1, 0), Point(1, 1)
-// };
-
-#if 1
 int check_weight(Board* board){
     int weight = 0;
     for(int row=0;row<5;row++) {
@@ -196,4 +171,3 @@ void algorithm_A(Board board, Player player, int index[]){
     index[0] = p.row;
     index[1] = p.col;
 }
-#endif

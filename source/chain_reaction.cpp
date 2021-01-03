@@ -60,8 +60,5 @@ int main(){
 
         first_two_step = false;
     }
-
-    algorithm_ST_final();
-    
     return 0;
 } 
