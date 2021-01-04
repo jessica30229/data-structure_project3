@@ -27,7 +27,7 @@ int main(){
         // put your orb on the index that obtained from your algorithm.
 
         if(rules_violation(red_player)) {
-            cout << "(" << index[0] << "," << index[1] << ")" << endl;
+           // cout << "(" << index[0] << "," << index[1] << ")" << endl;
             return 0;
         }
         // If a players' placement is illegal,

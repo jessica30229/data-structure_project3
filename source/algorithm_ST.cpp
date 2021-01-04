@@ -27,10 +27,7 @@ using namespace std;
  * 4. The function that print out the current board statement
 *************************************************************************/
 
-#define max(a,b) (a)>(b)?(a):(b)
-#define min(a,b) (a)<(b)?(a):(b)
-
-#define MAX_INF     1000000000
+#define MAX_INF 1000000000
 
 char my_color;
 char opponet_color;
@@ -85,7 +82,6 @@ Point* get_valid_orbs(Board* board, char color, int* count){
 }
 
 void create_new_board(Board* newboard, Point p, char color, Board* board){
-    // copy original
     *newboard = *board;
 
     Player player('w');
@@ -105,9 +101,6 @@ int minimax(Board* board, int depth, int alpha, int beta, bool isMaximizingPlaye
     if(isMaximizingPlayer) {
         v = -MAX_INF;
         Point* valid_orbs = get_valid_orbs(board, my_color, &count);
-        if(count==0) {
-            cout << "max ERROR no valid orbs" << endl;
-        }
         Point p, which_p;
         for(int i=0;i<count;i++) {
             Board nboard;
@@ -132,9 +125,6 @@ int minimax(Board* board, int depth, int alpha, int beta, bool isMaximizingPlaye
     } else {
         v = +MAX_INF;
         Point* valid_orbs = get_valid_orbs(board, opponet_color, &count);
-        if(count==0) {
-            cout << "min ERROR no valid orbs" << endl;
-        }
         Point p, which_p;
         for(int i=0;i<count;i++) {
             Board nboard;
@@ -159,7 +149,6 @@ int minimax(Board* board, int depth, int alpha, int beta, bool isMaximizingPlaye
 }
 
 void algorithm_A(Board board, Player player, int index[]){
-    // int count;
     //////your algorithm design///////////
     if(player.get_color() == 'r') {my_color = 'r'; opponet_color = 'b';}
     else {my_color = 'b'; opponet_color = 'r';}
